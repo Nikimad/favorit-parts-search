@@ -1,5 +1,6 @@
 import { useDispatch, useSelector } from 'react-redux'
 import { fetchOffers } from '../store/offersSlice'
+import { fetchBrands } from '../store/searchSlice'
 import Loader from './Loader'
 import Notice from './Notice'
 
@@ -10,7 +11,12 @@ export default function BrandList() {
 
   if (status === 'idle') return null
   if (status === 'loading') return <Loader />
-  if (status === 'failed') return <Notice variant="danger">{error}</Notice>
+  if (status === 'failed')
+    return (
+      <Notice variant="danger" onRetry={() => dispatch(fetchBrands(query))}>
+        {error}
+      </Notice>
+    )
   if (!brands.length) return <Notice variant="info">По артикулу «{query}» ничего не найдено</Notice>
 
   return (
