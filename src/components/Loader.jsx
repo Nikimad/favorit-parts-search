@@ -1,7 +1,8 @@
-export default function Loader() {
+export default function Loader({ label }) {
   return (
-    <div className="spinner-border text-primary" role="status">
-      <span className="visually-hidden">Загрузка…</span>
+    <div className="d-flex align-items-center gap-2" role="status">
+      <div className="spinner-border text-primary" aria-hidden="true" />
+      <span className={label ? 'text-muted' : 'visually-hidden'}>{label ?? 'Загрузка…'}</span>
     </div>
   )
 }
