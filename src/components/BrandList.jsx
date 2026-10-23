@@ -5,6 +5,7 @@ import Notice from './Notice'
 
 export default function BrandList() {
   const { query, brands, status, error } = useSelector((state) => state.search)
+  const selected = useSelector((state) => state.offers.brand)
   const dispatch = useDispatch()
 
   if (status === 'idle') return null
@@ -18,11 +19,12 @@ export default function BrandList() {
         <button
           key={brand}
           type="button"
-          className="list-group-item list-group-item-action"
-          onClick={() => dispatch(fetchOffers({ number: query, brand }))}
+          className={`list-group-item list-group-item-action${brand === selected ? ' active' : ''}`}
+          aria-current={brand === selected}
+          onClick={() => brand !== selected && dispatch(fetchOffers({ number: query, brand }))}
         >
           <span className="fw-bold">{brand}</span>
-          <span className="text-muted ms-2">{name}</span>
+          <span className="opacity-75 ms-2">{name}</span>
         </button>
       ))}
     </div>

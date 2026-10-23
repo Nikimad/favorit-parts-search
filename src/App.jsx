@@ -1,5 +1,6 @@
 import SearchForm from './components/SearchForm'
 import BrandList from './components/BrandList'
+import OffersTable from './components/OffersTable'
 
 export default function App() {
   return (
@@ -9,6 +10,10 @@ export default function App() {
       <section>
         <h2 className="h5 mb-3">1. Производители</h2>
         <BrandList />
+      </section>
+      <section className="mt-4">
+        <h2 className="h5 mb-3">2. Предложения и аналоги</h2>
+        <OffersTable />
       </section>
     </main>
   )
