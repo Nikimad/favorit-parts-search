@@ -48,4 +48,4 @@ alwaysApply: true
 - Выполняй задачи из `docs/tasks.md` по порядку, по одной.
 - После каждой задачи отметь чекбокс и кратко опиши результат (1–2 предложения).
 - Не рефакторь код за пределами текущей задачи.
-- Один коммит на задачу, сообщение вида `T3: unit tests for normalize`.
+- Один коммит на задачу, но **коммиты (и `git add`, `git branch`, `git checkout`) делает только пользователь**. Агент в конце задачи предлагает ветку и сообщение по git flow: ветка `feature/t3-normalize-tests` от `develop`, коммит в стиле Conventional Commits, например `test(api): add unit tests for normalize`.
