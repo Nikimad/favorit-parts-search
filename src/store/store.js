@@ -1,5 +1,7 @@
 import { configureStore } from '@reduxjs/toolkit'
+import search from './searchSlice'
+import offers from './offersSlice'
 
 export const store = configureStore({
-  reducer: {},
+  reducer: { search, offers },
 })

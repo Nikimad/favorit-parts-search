@@ -45,10 +45,12 @@
 
 ## T4. Redux-слой
 
-- [ ] `searchSlice.js` и `offersSlice.js` с thunks `fetchBrands` / `fetchOffers` и защитой по `requestId`.
-- [ ] `store.js`; `offersSlice` сбрасывается на `fetchBrands.pending`.
+- [x] `searchSlice.js` и `offersSlice.js` с thunks `fetchBrands` / `fetchOffers` и защитой по `requestId`.
+- [x] `store.js`; `offersSlice` сбрасывается на `fetchBrands.pending`.
 
 **Готово, когда:** состояние соответствует `docs/plan.md`, п. 5 (проверить через Redux DevTools или временный `console.log`, который затем удалить).
+
+**Результат:** слайсы `search` и `offers` с формой состояния из плана; `query` и `brand` берутся из аргумента thunk на `pending`, результат применяется только при совпадении `requestId`, новый поиск сбрасывает этап 2 и тем самым отбрасывает ответ этапа 2, который ещё в пути. Проверено временным скриптом с подменённым `fetch` (гонка брендов A/B, ошибка квоты, сброс), скрипт удалён.
 
 ## T5. Этап 1: поиск производителей
 
