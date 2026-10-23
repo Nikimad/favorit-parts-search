@@ -9,6 +9,7 @@ export default async function handler(req, res) {
     const upstream = await fetch(`http://api.favorit-parts.ru/hs/hsprice/?${params}`)
     res.status(upstream.status).setHeader('Content-Type', 'application/json').send(await upstream.text())
   } catch {
-    res.status(502).json({ error: 'Upstream unavailable' })
+    // Без тела {"error"}: иначе клиент показал бы этот текст вместо сообщения о сбое из spec
+    res.status(502).end()
   }
 }
