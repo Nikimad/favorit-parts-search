@@ -20,9 +20,11 @@
 
 ## T1. Dev-прокси
 
-- [ ] Настроить `vite.config.js` по `docs/plan.md`, п. 3.
+- [x] Настроить `vite.config.js` по `docs/plan.md`, п. 3.
 
 **Готово, когда:** `curl "http://localhost:5173/api/hsprice?number=7160500039S"` возвращает JSON с массивом `goods` (при действующем API).
+
+**Результат:** прокси `/api/hsprice` переписывает путь на `/hs/hsprice/` и подставляет `key` из `FAVORIT_API_KEY` (без префикса `VITE_`, в бандл не попадает). Проверено `curl`: `7160500039S` возвращает `goods` с брендом MEYLE и складами.
 
 ## T2. API-слой и нормализация
 
