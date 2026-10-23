@@ -168,7 +168,7 @@ export default async function handler(req, res) {
     const upstream = await fetch(`http://api.favorit-parts.ru/hs/hsprice/?${params}`)
     res.status(upstream.status).setHeader('Content-Type', 'application/json').send(await upstream.text())
   } catch {
-    res.status(502).end()   // без {"error"}, чтобы клиент показал сообщение о сбое из spec
+    res.status(502).json({ error: 'Upstream unavailable' })
   }
 }
 ```
@@ -179,11 +179,76 @@ export default async function handler(req, res) {
 
 **Чек-лист проверки (все пункты обязательны перед тем, как считать деплой рабочим):**
 
-- [x] `/api/hsprice?number=7160500039S` на деплое возвращает JSON с `goods`.
-- [x] `http://` API отвечает с серверов Vercel: нет таймаутов, блокировки по IP или региону. При необходимости задать регион функции в `vercel.json` (поле `regions`).
-- [x] Ключ не найден ни в `dist/`, ни во вкладке Network.
-- [x] Бренд со спецсимволами (например `NGK/NTK`) доходит до API без искажений.
-- [x] Имитация сбоя upstream (502) → UI показывает сообщение о сбое, а не белый экран.
-- [x] Учтено, что демо-ключ общий: квоту делят все, кто откроет ссылку. В README ссылка помечена как демо.
+- [ ] `/api/hsprice?number=7160500039S` на деплое возвращает JSON с `goods`.
+- [ ] `http://` API отвечает с серверов Vercel: нет таймаутов, блокировки по IP или региону. При необходимости задать регион функции в `vercel.json` (поле `regions`).
+- [ ] Ключ не найден ни в `dist/`, ни во вкладке Network.
+- [ ] Бренд со спецсимволами (например `NGK/NTK`) доходит до API без искажений.
+- [ ] Имитация сбоя upstream (502) → UI показывает сообщение о сбое, а не белый экран.
+- [ ] Учтено, что демо-ключ общий: квоту делят все, кто откроет ссылку. В README ссылка помечена как демо.
 
 **Правило остановки:** если проверка не проходит за ~40 минут, откатываем деплой. В README остаётся описание как «не проверено», приложение сдаётся без деплоя.
+
+## 10. Расширения (T10–T14)
+
+> Раздел переопределяет п. 4, 5, 6 и 9 там, где они противоречат. Требования: `docs/spec.md`, п. 9 (E-1…E-5). Новых файлов нет, кроме `vercel.json` в T14.
+
+### E-1. Подпись загрузки и «Повторить» (T10)
+
+- `Loader`: необязательный проп `label` (текст рядом со спиннером). На этапе 2: «Ищем аналоги, это может занять до 10 секунд».
+- `Notice`: необязательный проп `onRetry`. Если передан, показывается кнопка «Повторить» (`btn btn-outline-secondary btn-sm`). Передаётся только для `variant="danger"`.
+- `BrandList`: `onRetry={() => dispatch(fetchBrands(query))}`. `OffersTable`: `onRetry={() => dispatch(fetchOffers({ number: query, brand }))}`, где `query` берётся из слайса `search`.
+
+### E-2. Блок искомой позиции, порядок, заголовок (T11)
+
+- `buildOffers(goods)` возвращает `{ original, analogues }` (вместо плоского массива):
+  - `original`: первая позиция верхнего уровня (с `isOriginal`) или `null`;
+  - `analogues`: все `g.analogues`, без дубликатов по `id` и без `original`;
+  - порядок: сначала `count > 0`, внутри группы по возрастанию цены, `null` в конце группы (стабильная сортировка).
+- Состояние `offers`: `{ brand, original: null, analogues: [], status, error, requestId }`. Поле `items` убирается.
+- «Пусто» на этапе 2: `original === null && analogues.length === 0`.
+- `OffersTable`: блок искомой позиции сверху (Bootstrap `card`: название, бренд, артикул, цена, остаток; при `count = 0` приглушён с «Нет в наличии»), ниже заголовок «Аналоги: N, в наличии M» и таблица. Если `original = null`, блок не показывается. Отдельный файл под блок не заводить.
+- `normalize.test.js`: обновить кейсы `buildOffers` и добавить проверки сортировки и `null`-цен.
+
+### E-3. Свёртка позиций без наличия (T12)
+
+- `OffersTable`: `const [showAll, setShowAll] = useState(false)`. По умолчанию в таблице только аналоги с `count > 0`.
+- Под таблицей, если есть позиции без наличия (K > 0): кнопка «Показать ещё K без наличия» / «Скрыть позиции без наличия» (`btn btn-link`).
+- Если аналогов в наличии нет, а K > 0: над кнопкой строка «Аналогов в наличии нет».
+- Сброс при смене бренда: в `App.jsx` рендерить `<OffersTable key={brand} />`.
+
+### E-4. Примеры на пустом экране (T13)
+
+- В `SearchForm`, пока `search.status === 'idle'`: строка-подсказка («Введите артикул детали: покажем производителей, затем аналоги с ценой и остатком») и кнопки-примеры из константы `EXAMPLES = ['7160500039S', '0189']`.
+- Клик: `setValue(example)` и `dispatch(fetchBrands(example))`. Поднимать состояние формы не нужно.
+
+### E-5. Кэш и лимит времени функции (T14, только после T9)
+
+Изменения в `api/hsprice.js` (заменяют блок `try/catch` из п. 9; тело ответа `{ error: 'Upstream unavailable' }` из п. 9 в UI показалось бы сырым английским текстом, поэтому ошибки шлюза приводятся к формату API и получают перевод в `parseResponse`):
+
+```js
+const TIMEOUT_MS = 12000   // стартовое значение, см. ниже
+
+try {
+  const upstream = await fetch(url, { signal: AbortSignal.timeout(TIMEOUT_MS) })
+  const text = await upstream.text()
+  let body = null
+  try { body = JSON.parse(text) } catch {}
+  const cacheable = upstream.ok && body && !body.error   // API отдаёт ошибки в теле
+  res.setHeader('Cache-Control', cacheable ? 's-maxage=300' : 'no-store')
+  res.status(upstream.status).setHeader('Content-Type', 'application/json').send(text)
+} catch (e) {
+  res.setHeader('Cache-Control', 'no-store')
+  if (e.name === 'TimeoutError') res.status(504).json({ error: 'Request timeout!' })
+  else res.status(502).json({ error: 'Gateway error!' })
+}
+```
+
+`vercel.json`:
+
+```json
+{ "functions": { "api/hsprice.js": { "maxDuration": 15 } } }
+```
+
+- Значения стартовые. Этап 2 занимал 4–9 с (NGK/NTK около 8,8 с), поэтому таймаут запроса к API не должен быть меньше ~12 с, а `maxDuration` должен быть больше таймаута. До установки значений сверить допустимый максимум для вашего тарифа Vercel по их документации. Если тариф не позволяет ≥ ~12 с, часть про таймаут не делаем и оставляем только заголовок `Cache-Control`.
+- `parseResponse`: `'Request timeout!'` → «Сервис отвечает слишком долго. Повторите запрос»; `'Gateway error!'` → то же сообщение, что для сбоя сети. Добавить два кейса в `normalize.test.js`.
+- Кнопка «Повторить» из E-1 покрывает оба случая.
