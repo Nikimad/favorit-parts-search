@@ -28,10 +28,12 @@
 
 ## T2. API-слой и нормализация
 
-- [ ] `src/api/normalize.js`: `parseResponse`, `getPrice`, `extractBrands`, `buildOffers` (сигнатуры и правила в `docs/plan.md`, п. 4).
-- [ ] `src/api/favoritApi.js`: `fetchGoods` с обработкой сетевых ошибок.
+- [x] `src/api/normalize.js`: `parseResponse`, `getPrice`, `extractBrands`, `buildOffers` (сигнатуры и правила в `docs/plan.md`, п. 4).
+- [x] `src/api/favoritApi.js`: `fetchGoods` с обработкой сетевых ошибок.
 
 **Готово, когда:** функции реализованы, текст ошибок соответствует таблице в `docs/spec.md`, п. 5.
+
+**Результат:** чистые функции нормализации (цена только со складов с `stock > 0`, заглушка «ничего не найдено» отфильтровывается, ошибки API переводятся по таблице spec) и `fetchGoods` с единым сообщением о сбое сети, не-2xx и невалидном JSON. Проверено прогоном в Node на образцах; живой ответ сейчас недоступен (`Invalid access key`), его текст тоже сведён к «Ошибка конфигурации ключа API».
 
 ## T3. Юнит-тест нормализатора
 
