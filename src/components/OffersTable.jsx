@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { fetchOffers } from '../store/offersSlice'
 import Loader from './Loader'
@@ -10,6 +11,7 @@ export default function OffersTable() {
   const { brand, original, analogues, status, error } = useSelector((state) => state.offers)
   const query = useSelector((state) => state.search.query)
   const dispatch = useDispatch()
+  const [showAll, setShowAll] = useState(false)
 
   if (status === 'idle') return null
   if (status === 'loading') return <Loader label="Ищем аналоги, это может занять до 10 секунд" />
@@ -23,6 +25,8 @@ export default function OffersTable() {
     return <Notice variant="info">Для выбранного производителя предложений не найдено</Notice>
 
   const inStock = analogues.filter((a) => a.count > 0).length
+  const outOfStock = analogues.length - inStock
+  const visible = showAll ? analogues : analogues.filter((a) => a.count > 0)
 
   return (
     <>
@@ -43,7 +47,7 @@ export default function OffersTable() {
       <h3 className="h6 mb-2">
         Аналоги: {analogues.length}, в наличии {inStock}
       </h3>
-      {analogues.length > 0 && (
+      {visible.length > 0 && (
         <div className="table-responsive">
           <table className="table table-sm align-middle">
             <thead>
@@ -54,7 +58,7 @@ export default function OffersTable() {
               </tr>
             </thead>
             <tbody>
-              {analogues.map(({ id, brand, number, name, count, price }) => {
+              {visible.map(({ id, brand, number, name, count, price }) => {
                 const muted = count ? '' : 'text-muted'
                 return (
                   <tr key={id}>
@@ -72,6 +76,14 @@ export default function OffersTable() {
             </tbody>
           </table>
         </div>
+      )}
+      {outOfStock > 0 && (
+        <>
+          {inStock === 0 && <p className="text-muted mb-1">Аналогов в наличии нет</p>}
+          <button type="button" className="btn btn-link p-0" onClick={() => setShowAll(!showAll)}>
+            {showAll ? 'Скрыть позиции без наличия' : `Показать ещё ${outOfStock} без наличия`}
+          </button>
+        </>
       )}
     </>
   )
