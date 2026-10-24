@@ -9,7 +9,7 @@ export default function BrandList() {
   const selected = useSelector((state) => state.offers.brand)
   const dispatch = useDispatch()
 
-  if (status === 'idle') return null
+  if (status === 'idle') return <p className="text-muted mb-0">Введите артикул или выберите пример выше</p>
   if (status === 'loading') return <Loader />
   if (status === 'failed')
     return (
@@ -30,7 +30,7 @@ export default function BrandList() {
           onClick={() => brand !== selected && dispatch(fetchOffers({ number: query, brand }))}
         >
           <span className="fw-bold">{brand}</span>
-          <span className="opacity-75 ms-2">{name}</span>
+          <small className="opacity-75 ms-2">{name}</small>
         </button>
       ))}
     </div>

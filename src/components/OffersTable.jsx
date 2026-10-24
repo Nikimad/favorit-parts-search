@@ -13,7 +13,8 @@ export default function OffersTable() {
   const dispatch = useDispatch()
   const [showAll, setShowAll] = useState(false)
 
-  if (status === 'idle') return null
+  if (status === 'idle')
+    return <p className="text-muted mb-0">Выберите производителя, чтобы увидеть предложения и аналоги</p>
   if (status === 'loading') return <Loader label="Ищем аналоги, это может занять до 10 секунд" />
   if (status === 'failed')
     return (
@@ -49,8 +50,8 @@ export default function OffersTable() {
       </h3>
       {visible.length > 0 && (
         <div className="table-responsive">
-          <table className="table table-sm align-middle">
-            <thead>
+          <table className="table table-hover align-middle">
+            <thead className="table-light">
               <tr>
                 <th>Название / Производитель</th>
                 <th className="text-end">Цена</th>
@@ -62,7 +63,7 @@ export default function OffersTable() {
                 const muted = count ? '' : 'text-muted'
                 return (
                   <tr key={id}>
-                    <td className={muted}>
+                    <td className={`text-break ${muted}`}>
                       <div>
                         {name} <span className="fw-bold">{brand}</span>
                       </div>
