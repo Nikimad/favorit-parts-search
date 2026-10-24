@@ -7,7 +7,7 @@ export const fetchOffers = createAsyncThunk('offers/fetchOffers', async ({ numbe
   buildOffers(await fetchGoods({ number, brand })),
 )
 
-const initialState = { brand: null, items: [], status: 'idle', error: null, requestId: null }
+const initialState = { brand: null, original: null, analogues: [], status: 'idle', error: null, requestId: null }
 
 const offersSlice = createSlice({
   name: 'offers',
@@ -19,14 +19,16 @@ const offersSlice = createSlice({
       .addCase(fetchBrands.pending, () => initialState)
       .addCase(fetchOffers.pending, (state, action) => {
         state.brand = action.meta.arg.brand
-        state.items = []
+        state.original = null
+        state.analogues = []
         state.status = 'loading'
         state.error = null
         state.requestId = action.meta.requestId
       })
       .addCase(fetchOffers.fulfilled, (state, action) => {
         if (action.meta.requestId !== state.requestId) return
-        state.items = action.payload
+        state.original = action.payload.original
+        state.analogues = action.payload.analogues
         state.status = 'succeeded'
       })
       .addCase(fetchOffers.rejected, (state, action) => {

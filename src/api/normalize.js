@@ -36,23 +36,28 @@ export function extractBrands(goods) {
   return [...byBrand.values()].sort((a, b) => a.brand.localeCompare(b.brand))
 }
 
+const toOffer = (item) => ({
+  id: item.goodsID,
+  brand: item.brand,
+  number: item.number,
+  name: item.name,
+  count: Number(item.count) || 0,
+  price: getPrice(item),
+})
+
+// Сначала в наличии, внутри группы по возрастанию цены, без цены в конце группы
+const byStockAndPrice = (a, b) =>
+  (b.count > 0) - (a.count > 0) || (a.price === null) - (b.price === null) || a.price - b.price
+
 export function buildOffers(goods) {
-  const byId = new Map()
-  const add = (item, isOriginal) => {
-    if (isEmptyItem(item) || byId.has(item.goodsID)) return
-    byId.set(item.goodsID, {
-      id: item.goodsID,
-      brand: item.brand,
-      number: item.number,
-      name: item.name,
-      count: Number(item.count) || 0,
-      price: getPrice(item),
-      isOriginal,
-    })
+  const first = goods.find((item) => !isEmptyItem(item))
+  const original = first ? toOffer(first) : null
+  const seen = new Set([original?.id])
+  const analogues = []
+  for (const item of goods.flatMap((g) => g.analogues ?? [])) {
+    if (isEmptyItem(item) || seen.has(item.goodsID)) continue
+    seen.add(item.goodsID)
+    analogues.push(toOffer(item))
   }
-  for (const item of goods) {
-    add(item, true)
-    for (const analogue of item.analogues ?? []) add(analogue, false)
-  }
-  return [...byId.values()]
+  return { original, analogues: analogues.sort(byStockAndPrice) }
 }
