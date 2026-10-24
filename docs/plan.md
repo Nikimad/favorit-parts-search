@@ -89,9 +89,9 @@ Thunks (`createAsyncThunk`):
 
 | Компонент | Что делает |
 |---|---|
-| `SearchForm` | Локальный `useState` для ввода, `<form onSubmit>` → `dispatch(fetchBrands(trimmed))`. Кнопка отключена при пустом вводе и при загрузке. Пока `search.status === 'idle'`: подсказка (`form-text`) и кнопки-примеры из `EXAMPLES = ['7160500039S', '0189']`; клик делает `setValue` и `dispatch(fetchBrands(example))`. |
-| `BrandList` | Читает `search` и `offers.brand`. Состояния: Loader / Notice danger с `onRetry={() => dispatch(fetchBrands(query))}` / Notice info / `list-group` кнопок (бренд жирным, название детали приглушённо, выбранный `active`). Клик по невыбранному бренду → `dispatch(fetchOffers({ number: query, brand }))`. |
-| `OffersTable` | Читает `offers` и `search.query`. Loader с подписью этапа 2 / Notice danger с `onRetry` (повтор `fetchOffers`) / Notice info. Блок искомой позиции: `card` с бейджем «Искомая», приглушён при `count = 0`. Заголовок «Аналоги: N, в наличии M» и таблица (`table table-sm` в `table-responsive`). `useState(showAll)`: по умолчанию только `count > 0`, кнопка `btn btn-link` раскрывает остальные. Нулевой остаток → `text-muted` и «Нет в наличии». |
+| `SearchForm` | Локальный `useState` для ввода, `<form onSubmit>` → `dispatch(fetchBrands(trimmed))`. Кнопка отключена при пустом вводе и при загрузке. Всегда: подсказка и кнопки-примеры из `EXAMPLES = ['7160500039S', '0189']`; клик делает `setValue` и `dispatch(fetchBrands(example))`. |
+| `BrandList` | Читает `search` и `offers.brand`. Состояния: подсказка `text-muted` при `idle` / Loader / Notice danger с `onRetry={() => dispatch(fetchBrands(query))}` / Notice info / `list-group` кнопок (бренд жирным, название детали приглушённо, выбранный `active`). Клик по невыбранному бренду → `dispatch(fetchOffers({ number: query, brand }))`. |
+| `OffersTable` | Читает `offers` и `search.query`. Подсказка `text-muted` при `idle` / Loader с подписью этапа 2 / Notice danger с `onRetry` (повтор `fetchOffers`) / Notice info. Блок искомой позиции: `card` с бейджем «Искомая», приглушён при `count = 0`. Заголовок «Аналоги: N, в наличии M» и таблица (`table table-hover` в `table-responsive`). `useState(showAll)`: по умолчанию только `count > 0`, кнопка `btn btn-link` раскрывает остальные. Нулевой остаток → `text-muted` и «Нет в наличии». |
 | `Loader` | Bootstrap `spinner-border` в обёртке с `role="status"`. Без `label` текст «Загрузка…» виден только скринридеру. |
 | `Notice` | Bootstrap `alert alert-{variant}`; при `onRetry` кнопка «Повторить» (`btn btn-outline-secondary btn-sm`). |
 

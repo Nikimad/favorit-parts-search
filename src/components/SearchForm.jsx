@@ -22,38 +22,46 @@ export default function SearchForm() {
   }
 
   return (
-    <form className="mb-4" onSubmit={handleSubmit}>
-      <label htmlFor="article" className="form-label">
-        Артикул
-      </label>
-      <div className="input-group">
-        <input
-          id="article"
-          className="form-control"
-          value={value}
-          onChange={(e) => setValue(e.target.value)}
-          placeholder="Например, 7160500039S"
-          autoComplete="off"
-        />
-        <button type="submit" className="btn btn-primary" disabled={!trimmed || status === 'loading'}>
-          Найти
-        </button>
-      </div>
-      {status === 'idle' && (
-        <div className="form-text">
-          Введите артикул детали: покажем производителей, затем аналоги с ценой и остатком. Например:{' '}
-          {EXAMPLES.map((example) => (
-            <button
-              key={example}
-              type="button"
-              className="btn btn-link btn-sm p-0 me-2 align-baseline"
-              onClick={() => handleExample(example)}
-            >
-              {example}
-            </button>
-          ))}
+    <form className="text-body" onSubmit={handleSubmit}>
+      <div className="row">
+        <div className="col">
+          {/* placeholder обязателен для form-floating: по нему Bootstrap поднимает метку */}
+          <div className="form-floating">
+            <input
+              id="article"
+              className="form-control w-100"
+              value={value}
+              onChange={(e) => setValue(e.target.value)}
+              placeholder="Артикул"
+              autoComplete="off"
+              autoFocus
+            />
+            <label htmlFor="article">Артикул</label>
+          </div>
         </div>
-      )}
+        <div className="col-auto">
+          <button
+            type="submit"
+            className="h-100 btn btn-lg btn-primary px-sm-5"
+            disabled={!trimmed || status === 'loading'}
+          >
+            Найти
+          </button>
+        </div>
+      </div>
+      <p className="mt-2 mb-0 text-white-50">
+        Пример:{' '}
+        {EXAMPLES.map((example) => (
+          <button
+            key={example}
+            type="button"
+            className="btn btn-link link-light btn-sm p-0 me-2 align-baseline"
+            onClick={() => handleExample(example)}
+          >
+            {example}
+          </button>
+        ))}
+      </p>
     </form>
   )
 }
