@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { buildOffers, extractBrands, getPrice, parseResponse } from './normalize'
+import { NETWORK_MESSAGE, buildOffers, extractBrands, getPrice, parseResponse } from './normalize'
 
 const item = (goodsID, brand, extra = {}) => ({
   goodsID,
@@ -28,6 +28,16 @@ describe('parseResponse', () => {
     expect(() => parseResponse({ error: ['Empty key!', 'Invalid key client!'] })).toThrow(
       /^Ошибка конфигурации ключа API$/,
     )
+  })
+
+  it('переводит таймаут функции', () => {
+    expect(() => parseResponse({ error: 'Request timeout!' })).toThrow(
+      'Сервис отвечает слишком долго. Повторите запрос',
+    )
+  })
+
+  it('переводит ошибку шлюза в сообщение о сбое сети', () => {
+    expect(() => parseResponse({ error: 'Gateway error!' })).toThrow(NETWORK_MESSAGE)
   })
 })
 
