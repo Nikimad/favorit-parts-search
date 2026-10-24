@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { buildOffers, extractBrands, getPrice, parseResponse } from './normalize'
+import { NETWORK_MESSAGE, buildOffers, extractBrands, getPrice, parseResponse } from './normalize'
 
 const item = (goodsID, brand, extra = {}) => ({
   goodsID,
@@ -28,6 +28,16 @@ describe('parseResponse', () => {
     expect(() => parseResponse({ error: ['Empty key!', 'Invalid key client!'] })).toThrow(
       /^Ошибка конфигурации ключа API$/,
     )
+  })
+
+  it('переводит таймаут функции', () => {
+    expect(() => parseResponse({ error: 'Request timeout!' })).toThrow(
+      'Сервис отвечает слишком долго. Повторите запрос',
+    )
+  })
+
+  it('переводит ошибку шлюза в сообщение о сбое сети', () => {
+    expect(() => parseResponse({ error: 'Gateway error!' })).toThrow(NETWORK_MESSAGE)
   })
 })
 
@@ -65,27 +75,42 @@ describe('getPrice', () => {
 })
 
 describe('buildOffers', () => {
-  it('объединяет искомую позицию и аналоги без дублей', () => {
+  const stock = (price) => ({ warehouses: [{ price, stock: 1 }] })
+
+  it('отделяет искомую позицию от аналогов и убирает дубли', () => {
     const goods = [
       item('1', 'MEYLE', {
-        analogues: [item('2', 'BOSCH'), item('3', 'FEBI'), item('1', 'MEYLE')],
+        analogues: [item('2', 'BOSCH'), item('3', 'FEBI'), item('1', 'MEYLE'), item('2', 'BOSCH')],
       }),
-      item('2', 'BOSCH'),
     ]
-    const offers = buildOffers(goods)
-    expect(offers.map((o) => [o.id, o.isOriginal])).toEqual([
-      ['1', true],
-      ['2', false],
-      ['3', false],
-    ])
-    expect(offers[0]).toEqual({
+    const { original, analogues } = buildOffers(goods)
+    expect(original).toEqual({
       id: '1',
       brand: 'MEYLE',
       number: '0189',
       name: 'Деталь MEYLE',
       count: 1,
       price: null,
-      isOriginal: true,
     })
+    expect(analogues.map((o) => o.id)).toEqual(['2', '3'])
+  })
+
+  it('сортирует: сначала в наличии, по возрастанию цены, без цены в конце группы', () => {
+    const goods = [
+      item('1', 'MEYLE', {
+        analogues: [
+          item('a', 'A', { count: 0 }),
+          item('b', 'B', stock(300)),
+          item('c', 'C'),
+          item('d', 'D', stock(100)),
+          item('e', 'E', { count: 0, ...stock(50) }),
+        ],
+      }),
+    ]
+    expect(buildOffers(goods).analogues.map((o) => o.id)).toEqual(['d', 'b', 'c', 'e', 'a'])
+  })
+
+  it('возвращает пустой результат без позиций', () => {
+    expect(buildOffers([])).toEqual({ original: null, analogues: [] })
   })
 })
