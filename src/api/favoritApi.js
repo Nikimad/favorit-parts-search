@@ -1,6 +1,4 @@
-import { parseResponse } from './normalize'
-
-const NETWORK_MESSAGE = 'Не удалось связаться с сервисом. Проверьте соединение и повторите запрос'
+import { NETWORK_MESSAGE, parseResponse } from './normalize'
 
 export async function fetchGoods({ number, brand }) {
   const params = new URLSearchParams({ number })

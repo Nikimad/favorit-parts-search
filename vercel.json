@@ -1,0 +1,7 @@
+{
+  "functions": {
+    "api/hsprice.js": {
+      "maxDuration": 15
+    }
+  }
+}

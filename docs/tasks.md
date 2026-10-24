@@ -133,11 +133,13 @@
 
 > Если T9 не делался, задачу пропустить. Значения таймаута и `maxDuration` стартовые, до установки сверить лимиты вашего тарифа Vercel (`docs/plan.md`, п. 10, E-5).
 
-- [ ] `api/hsprice.js`: `Cache-Control` по правилам п. 10, таймаут запроса к API, ошибки `Request timeout!` и `Gateway error!`.
-- [ ] `vercel.json` с `maxDuration`.
-- [ ] `parseResponse`: два новых сообщения, два кейса в `normalize.test.js`.
+- [x] `api/hsprice.js`: `Cache-Control` по правилам п. 10, таймаут запроса к API, ошибки `Request timeout!` и `Gateway error!`.
+- [x] `vercel.json` с `maxDuration`.
+- [x] `parseResponse`: два новых сообщения, два кейса в `normalize.test.js`.
 
 **Готово, когда:** выполнен AC-14 на реальном деплое.
+
+> Результат: функция ставит `s-maxage=300` только успешным ответам без `error`, остальным `no-store`; запрос к API ограничен 12 с (`504 Request timeout!`), сбой сети даёт `502 Gateway error!`, `parseResponse` переводит оба (константа `NETWORK_MESSAGE` переехала в `normalize.js`). `maxDuration: 15` укладывается в лимит Hobby (300 с с Fluid compute). Ветки функции проверены локально на подменённом `fetch`; AC-14 на деплое ещё не проверен. Vercel вырезает `s-maxage` из заголовка для клиента, поэтому кэш проверяется по `x-vercel-cache: HIT` на повторном запросе.
 
 ## T15. README после расширений
 

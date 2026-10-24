@@ -1,8 +1,14 @@
+export const NETWORK_MESSAGE =
+  'Не удалось связаться с сервисом. Проверьте соединение и повторите запрос'
+
+// Request timeout! и Gateway error! присылает не API, а функция api/hsprice.js на деплое
 const API_ERROR_MESSAGES = {
   'Request quota exceeded!': 'Превышен лимит запросов, попробуйте позже',
   'Empty key!': 'Ошибка конфигурации ключа API',
   'Invalid key client!': 'Ошибка конфигурации ключа API',
   'Invalid access key': 'Ошибка конфигурации ключа API',
+  'Request timeout!': 'Сервис отвечает слишком долго. Повторите запрос',
+  'Gateway error!': NETWORK_MESSAGE,
 }
 
 // API на «ничего не найдено» возвращает один элемент-заглушку с нулевым goodsID и пустым brand
