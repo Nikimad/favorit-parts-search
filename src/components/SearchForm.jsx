@@ -13,7 +13,10 @@ export default function SearchForm() {
 	// shortcut: без debounce и автопоиска, запрос только по Enter или кнопке, чтобы не тратить квоту API
 	const handleSubmit = (e) => {
 		e.preventDefault();
-		if (trimmed) dispatch(fetchBrands(trimmed));
+
+		if (trimmed) {
+			dispatch(fetchBrands(trimmed));
+		}
 	};
 
 	const handleExample = (example) => {
@@ -37,6 +40,7 @@ export default function SearchForm() {
 						<label htmlFor="article">Артикул</label>
 					</div>
 				</div>
+
 				<div className="col-auto">
 					<button
 						type="submit"
@@ -47,6 +51,7 @@ export default function SearchForm() {
 					</button>
 				</div>
 			</div>
+
 			<p className="mt-2 mb-0 text-white-50">
 				Пример:{" "}
 				{EXAMPLES.map((example) => (

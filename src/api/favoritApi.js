@@ -1,27 +1,31 @@
-import { NETWORK_MESSAGE, parseResponse } from './normalize'
+import { NETWORK_MESSAGE, parseResponse } from "./normalize";
 
 export async function fetchGoods({ number, brand }) {
-  const params = new URLSearchParams({ number })
-  if (brand) {
-    params.set('brand', brand)
-    params.set('analogues', 'on')
-  }
+	const params = new URLSearchParams({ number });
 
-  let res
-  try {
-    res = await fetch(`/api/hsprice?${params}`)
-  } catch {
-    throw new Error(NETWORK_MESSAGE)
-  }
+	if (brand) {
+		params.set("brand", brand);
+		params.set("analogues", "on");
+	}
 
-  let json
-  try {
-    json = await res.json()
-  } catch {
-    throw new Error(NETWORK_MESSAGE)
-  }
+	let res;
+	try {
+		res = await fetch(`/api/hsprice?${params}`);
+	} catch {
+		throw new Error(NETWORK_MESSAGE);
+	}
 
-  // Ошибка API может прийти и с HTTP 200, и с не-2xx: её текст важнее общего сообщения о сбое
-  if (!res.ok && !json?.error) throw new Error(NETWORK_MESSAGE)
-  return parseResponse(json)
+	let json;
+	try {
+		json = await res.json();
+	} catch {
+		throw new Error(NETWORK_MESSAGE);
+	}
+
+	// Ошибка API может прийти и с HTTP 200, и с не-2xx: её текст важнее общего сообщения о сбое
+	if (!res.ok && !json?.error) {
+		throw new Error(NETWORK_MESSAGE);
+	}
+
+	return parseResponse(json);
 }
